@@ -1,6 +1,7 @@
 // ChatWidget.jsx
 import ChatMessage from '../ChatMessage';
 import useChatLogic from '../useChatLogic';
+import monaLisa from '../assets/monalisa-icon.png';
 import {
     Box,
     IconButton,
@@ -12,6 +13,7 @@ import {
 import CloseIcon from '@mui/icons-material/Close';
 import SendIcon from '@mui/icons-material/Send';
 
+// eslint-disable-next-line react/prop-types
 const ChatWidget = ({ onClose }) => {
     const { messages, sendMessage, isTyping } = useChatLogic();
 
@@ -42,13 +44,21 @@ const ChatWidget = ({ onClose }) => {
                     alignItems: 'center',
                 }}
             >
-                <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                    Chat Bot
-                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <img
+                        src={monaLisa}
+                        alt="Chatbot Icon"
+                        style={{ width: 30, height: 30, marginRight: 8 }}
+                    />
+                    <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#FFFFFF' }}>
+                        Chat Bot
+                    </Typography>
+                </Box>
                 <IconButton onClick={onClose}>
-                    <CloseIcon />
+                    <CloseIcon sx={{ color: '#FFFFFF' }} />
                 </IconButton>
             </Box>
+
 
             {/* Messages */}
             <Box
