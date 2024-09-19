@@ -1,3 +1,4 @@
+// useChatLogic.jsx
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { jsPDF } from 'jspdf';
@@ -14,6 +15,7 @@ const useChatLogic = () => {
     });
     const initialMessageSent = useRef(false);
     const predefinedOTP = '58726';
+    const indianLanguages = ['hindi', 'tamil', 'telugu', 'bengali', 'marathi', 'english'];
 
     const addMessage = useCallback((content, sender = 'bot') => {
         setMessages((prevMessages) => [...prevMessages, { content, sender }]);
@@ -21,131 +23,124 @@ const useChatLogic = () => {
 
     const handleUserInput = useCallback(
         (input) => {
-            console.log('input:', input);
-            console.log('currentStep:', currentStep);
+            const lowerInput = input.toLowerCase().trim();
             switch (currentStep) {
                 case 1: // Language selection
-                    if (['english', 'spanish', 'french'].includes(input.toLowerCase())) {
-                        setUserInfo((prev) => ({ ...prev, language: input.toLowerCase() }));
-                        addMessage(`Great! You've selected ${input}. What's your name?`);
+                    if (indianLanguages.includes(lowerInput)) {
+                        setUserInfo((prev) => ({ ...prev, language: lowerInput }));
+                        addMessage(`Fantastic choice! You've selected ${input}. May I have your name, please?`);
                         setCurrentStep((prevStep) => prevStep + 1);
                     } else {
                         addMessage(
-                            "I'm sorry, I didn't recognize that language. Please choose English, Spanish, or French."
+                            `I'm sorry, I didn't recognize that language. Please choose from: ${indianLanguages
+                                .map((lang) => lang.charAt(0).toUpperCase() + lang.slice(1))
+                                .join(', ')}.`
                         );
                     }
                     break;
                 case 2: // Name input
                     setUserInfo((prev) => ({ ...prev, name: input }));
-                    addMessage(`Nice to meet you, ${input}! Please enter your phone number.`);
+                    addMessage(`Pleasure to meet you, ${input}! Could you provide your phone number?`);
                     setCurrentStep((prevStep) => prevStep + 1);
                     break;
                 case 3: // Phone number input
                     setUserInfo((prev) => ({ ...prev, phone: input }));
-                    addMessage('We have sent an OTP to your number. Please enter it to proceed.');
+                    addMessage('An OTP has been sent to your number. Please enter it to proceed.');
                     setCurrentStep((prevStep) => prevStep + 1);
                     break;
                 case 4: // OTP verification
                     if (input === predefinedOTP) {
                         addMessage('OTP verified successfully!');
                         addMessage(
-                            "How many tickets do you need? Please specify adult and kids tickets (e.g., '2 adult, 1 kid')."
+                            'How many tickets would you like to book? Please specify adult and child tickets (e.g., "2 adults, 1 child").'
                         );
                         setCurrentStep((prevStep) => prevStep + 1);
                     } else {
-                        addMessage('Incorrect OTP. Please try again.');
+                        addMessage('That OTP seems incorrect. Please try again.');
                     }
                     break;
                 case 5: // Ticket selection
-                    const adultMatch = input.match(/(\d+)\s*adult/i);
-                    const kidsMatch = input.match(/(\d+)\s*kid/i);
+                    const adultMatch = lowerInput.match(/(\d+)\s*adult/i);
+                    const childMatch = lowerInput.match(/(\d+)\s*child/i);
                     const adult = adultMatch ? parseInt(adultMatch[1]) : 0;
-                    const kids = kidsMatch ? parseInt(kidsMatch[1]) : 0;
+                    const kids = childMatch ? parseInt(childMatch[1]) : 0;
 
                     if (adult > 0 || kids > 0) {
                         setUserInfo((prev) => ({ ...prev, tickets: { adult, kids } }));
                         addMessage(
-                            `Great! You've selected ${adult} adult and ${kids} kids tickets. We have a special offer: 10% off for group bookings!`
+                            `Great! You've selected ${adult} adult(s) and ${kids} child(ren). We have an exclusive 10% discount for group bookings!`
                         );
-                        addMessage('Ready to proceed with payment? (Yes/No)');
-                        // Corrected line: Increment currentStep
+                        addMessage('Shall we proceed to payment? (Yes/No)');
                         setCurrentStep((prevStep) => prevStep + 1);
                     } else {
                         addMessage(
-                            "I'm sorry, I couldn't understand the ticket numbers. Please try again in the format '2 adult, 1 kid'."
+                            'I couldn’t understand the ticket quantities. Please specify like "2 adults, 1 child".'
                         );
                     }
                     break;
                 case 6: // Payment confirmation
-                    if (input.toLowerCase() === 'yes') {
-                        addMessage("Great! Here's your payment QR code:");
+                    if (lowerInput === 'yes') {
+                        addMessage('Wonderful! Generating your payment QR code...');
                         addMessage(<QRCodeSVG value="https://example.com/payment" />);
-                        addMessage('Please scan this QR code to complete your payment.');
+                        addMessage('Please scan the QR code to complete your payment.');
                         setTimeout(() => {
-                            addMessage('Payment successful! Generating your tickets...');
+                            addMessage('Payment confirmed! Preparing your tickets...');
                             setTimeout(() => {
-                                // Generate a unique booking number
                                 const bookingNumber = `BOOK-${Math.random()
                                     .toString(36)
                                     .substr(2, 9)
                                     .toUpperCase()}`;
 
-                                // Generate the PDF document
                                 const doc = new jsPDF();
                                 doc.text('Your Ticket', 10, 10);
                                 doc.text(`Booking Number: ${bookingNumber}`, 10, 20);
                                 doc.text(`Name: ${userInfo.name}`, 10, 30);
                                 doc.text(`Phone: ${userInfo.phone}`, 10, 40);
                                 doc.text(
-                                    `Tickets: ${userInfo.tickets.adult} Adult, ${userInfo.tickets.kids} Kids`,
+                                    `Tickets: ${userInfo.tickets.adult} Adult(s), ${userInfo.tickets.kids} Child(ren)`,
                                     10,
                                     50
                                 );
-                                // Optionally add more content to the PDF here
 
-                                // Generate PDF as Blob
                                 const pdfBlob = doc.output('blob');
-
-                                // Create a Blob URL for the PDF
                                 const pdfUrl = URL.createObjectURL(pdfBlob);
 
-                                // Create a download link message
                                 const downloadLink = (
                                     <div>
-                                        <p>Here are your tickets:</p>
+                                        <p>Your tickets are ready!</p>
                                         <a href={pdfUrl} download={`tickets-${bookingNumber}.pdf`}>
-                                            <button className="bg-blue-500 text-white p-2 rounded mt-2">
-                                                Download PDF
+                                            <button
+                                                style={{
+                                                    backgroundColor: '#BB86FC',
+                                                    color: '#000',
+                                                    padding: '10px 20px',
+                                                    border: 'none',
+                                                    borderRadius: '5px',
+                                                    cursor: 'pointer',
+                                                    marginTop: '10px',
+                                                }}
+                                            >
+                                                Download Tickets
                                             </button>
                                         </a>
                                     </div>
                                 );
 
-                                // Send the download link as a message
                                 addMessage(downloadLink);
-
-                                // Additional messages
-                                addMessage(
-                                    'You can also access your tickets online at: https://example.com/tickets'
-                                );
-                                addMessage(`Here's your booking number: ${bookingNumber}`);
-                                // Corrected line: Increment currentStep
+                                addMessage(`Keep this booking number handy: ${bookingNumber}`);
                                 setCurrentStep((prevStep) => prevStep + 1);
                             }, 3000);
                         }, 5000);
                     } else {
-                        addMessage(
-                            "No problem. Let me know if you have any questions or when you're ready to book."
-                        );
-                        // Corrected line: Increment currentStep
+                        addMessage('No worries! Feel free to ask if you need anything else.');
                         setCurrentStep((prevStep) => prevStep + 1);
                     }
                     break;
                 case 7:
-                    addMessage('Is there anything else I can help you with?');
+                    addMessage('Is there anything else I can assist you with today?');
                     break;
                 default:
-                    addMessage('Is there anything else I can help you with?');
+                    addMessage('Thank you for visiting our museum! Have a wonderful day!');
             }
         },
         [currentStep, addMessage, userInfo]
@@ -171,7 +166,9 @@ const useChatLogic = () => {
     useEffect(() => {
         if (!initialMessageSent.current) {
             addMessage(
-                'Welcome to our Museum Chatbot! Please select your preferred language: English, Spanish, or French.'
+                `Hello! Welcome to our Virtual Museum assistant. Please select your preferred language: ${indianLanguages
+                    .map((lang) => lang.charAt(0).toUpperCase() + lang.slice(1))
+                    .join(', ')}.`
             );
             setCurrentStep((prevStep) => prevStep + 1);
             initialMessageSent.current = true;

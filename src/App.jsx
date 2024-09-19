@@ -1,33 +1,64 @@
+// App.jsx
 import { useState } from 'react';
 import ChatWidget from './ChatWidget';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { CssBaseline, Box, Typography, Fab } from '@mui/material';
+import ChatIcon from '@mui/icons-material/Chat';
+
+const darkTheme = createTheme({
+  palette: {
+    mode: 'dark',
+    background: {
+      default: '#121212',
+      paper: '#1E1E1E',
+    },
+    primary: {
+      main: '#BB86FC',
+    },
+  },
+});
 
 const App = () => {
   const [isChatOpen, setIsChatOpen] = useState(false);
 
   return (
-    <div className="relative h-screen bg-gray-100">
-      <div className="p-4">
-        <h1 className="text-2xl font-bold">Welcome to Our Museum</h1>
-        <p>Explore our exhibits and book your tickets today!</p>
-      </div>
+    <ThemeProvider theme={darkTheme}>
+      <CssBaseline />
+      <Box
+        sx={{
+          height: '100vh',
+          backgroundColor: 'background.default',
+          color: 'white',
+          p: 4,
+        }}
+      >
+        <Typography variant="h3" gutterBottom>
+          Welcome to Our Virtual Museum
+        </Typography>
+        <Typography variant="h6">
+          Dive into the world of art and history. Explore our exhibits and book your tickets today!
+        </Typography>
 
-      <div className="fixed bottom-4 right-4">
         {!isChatOpen && (
-          <button
+          <Fab
+            color="primary"
+            aria-label="chat"
             onClick={() => setIsChatOpen(true)}
-            className="bg-blue-500 text-white p-4 rounded-full shadow-lg hover:bg-blue-600 transition-colors"
+            sx={{
+              position: 'fixed',
+              bottom: 32,
+              right: 32,
+              boxShadow: '0 0 10px #BB86FC',
+              animation: 'pulse 2s infinite',
+            }}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-            </svg>
-          </button>
+            <ChatIcon />
+          </Fab>
         )}
         {isChatOpen && <ChatWidget onClose={() => setIsChatOpen(false)} />}
-      </div>
-    </div>
+      </Box>
+    </ThemeProvider>
   );
 };
 
 export default App;
-
-
