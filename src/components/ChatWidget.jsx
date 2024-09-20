@@ -1,4 +1,3 @@
-// ChatWidget.jsx
 import ChatMessage from '../ChatMessage';
 import useChatLogic from '../useChatLogic';
 import monaLisa from '../assets/monalisa-icon.png';
@@ -18,7 +17,7 @@ const ChatWidget = ({ onClose }) => {
     const { messages, sendMessage, isTyping } = useChatLogic();
 
     return (
-        <Paper
+        <Paper// Language selection
             elevation={12}
             sx={{
                 position: 'fixed',

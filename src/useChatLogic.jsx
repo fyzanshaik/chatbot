@@ -1,5 +1,5 @@
 // useChatLogic.jsx
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { jsPDF } from 'jspdf';
 
@@ -15,8 +15,11 @@ const useChatLogic = () => {
     });
     const initialMessageSent = useRef(false);
     const predefinedOTP = '58726';
-    const indianLanguages = ['hindi', 'tamil', 'telugu', 'bengali', 'marathi', 'english'];
 
+    // const indianLanguages = ['hindi', 'tamil', 'telugu', 'bengali', 'marathi', 'english'];
+    const indianLanguages = useMemo(() => {
+        return ['hindi', 'tamil', 'telugu', 'bengali', 'marathi', 'english'];
+    }, [])
     const addMessage = useCallback((content, sender = 'bot') => {
         setMessages((prevMessages) => [...prevMessages, { content, sender }]);
     }, []);
@@ -25,7 +28,7 @@ const useChatLogic = () => {
         (input) => {
             const lowerInput = input.toLowerCase().trim();
             switch (currentStep) {
-                case 1: // Language selection
+                case 1:
                     if (indianLanguages.includes(lowerInput)) {
                         setUserInfo((prev) => ({ ...prev, language: lowerInput }));
                         addMessage(`Fantastic choice! You've selected ${input}. May I have your name, please?`);
@@ -60,24 +63,26 @@ const useChatLogic = () => {
                     }
                     break;
                 case 5: // Ticket selection
-                    const adultMatch = lowerInput.match(/(\d+)\s*adult/i);
-                    const childMatch = lowerInput.match(/(\d+)\s*child/i);
-                    const adult = adultMatch ? parseInt(adultMatch[1]) : 0;
-                    const kids = childMatch ? parseInt(childMatch[1]) : 0;
+                    {
+                        const adultMatch = lowerInput.match(/(\d+)\s*adult/i);
+                        const childMatch = lowerInput.match(/(\d+)\s*child/i);
+                        const adult = adultMatch ? parseInt(adultMatch[1]) : 0;
+                        const kids = childMatch ? parseInt(childMatch[1]) : 0;
 
-                    if (adult > 0 || kids > 0) {
-                        setUserInfo((prev) => ({ ...prev, tickets: { adult, kids } }));
-                        addMessage(
-                            `Great! You've selected ${adult} adult(s) and ${kids} child(ren). We have an exclusive 10% discount for group bookings!`
-                        );
-                        addMessage('Shall we proceed to payment? (Yes/No)');
-                        setCurrentStep((prevStep) => prevStep + 1);
-                    } else {
-                        addMessage(
-                            'I couldn’t understand the ticket quantities. Please specify like "2 adults, 1 child".'
-                        );
+                        if (adult > 0 || kids > 0) {
+                            setUserInfo((prev) => ({ ...prev, tickets: { adult, kids } }));
+                            addMessage(
+                                `Great! You've selected ${adult} adult(s) and ${kids} child(ren). We have an exclusive 10% discount for group bookings!`
+                            );
+                            addMessage('Shall we proceed to payment? (Yes/No)');
+                            setCurrentStep((prevStep) => prevStep + 1);
+                        } else {
+                            addMessage(
+                                'I couldn’t understand the ticket quantities. Please specify like "2 adults, 1 child".'
+                            );
+                        }
+                        break;
                     }
-                    break;
                 case 6: // Payment confirmation
                     if (lowerInput === 'yes') {
                         addMessage('Wonderful! Generating your payment QR code...');
@@ -143,7 +148,7 @@ const useChatLogic = () => {
                     addMessage('Thank you for visiting our museum! Have a wonderful day!');
             }
         },
-        [currentStep, addMessage, userInfo]
+        [currentStep, addMessage, userInfo, indianLanguages]
     );
 
     const sendMessage = useCallback(
@@ -173,7 +178,7 @@ const useChatLogic = () => {
             setCurrentStep((prevStep) => prevStep + 1);
             initialMessageSent.current = true;
         }
-    }, [addMessage]);
+    }, [addMessage, indianLanguages]);
 
     return { messages, sendMessage, isTyping };
 };

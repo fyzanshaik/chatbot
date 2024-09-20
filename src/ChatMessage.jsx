@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 // ChatMessage.jsx
 import { Typography, Box } from '@mui/material';
 
