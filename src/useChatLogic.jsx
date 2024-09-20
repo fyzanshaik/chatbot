@@ -144,8 +144,17 @@ const useChatLogic = () => {
                 case 7:
                     addMessage('Is there anything else I can assist you with today?');
                     break;
+                case 8:
+                    if (lowerInput === 'no' || lowerInput === 'nothing') {
+                        addMessage("Thank you for using our Virtual Museum Assistant! We hope you enjoy your visit to our museum. If you need any further assistance during your visit, please don't hesitate to ask our staff. Have a wonderful day!");
+                        setCurrentStep((prevStep) => prevStep + 1);
+                    } else {
+                        addMessage("Is there anything specific you'd like to know about the museum or your visit?");
+                    }
+                    break;
                 default:
-                    addMessage('Thank you for visiting our museum! Have a wonderful day!');
+                    addMessage("Thank you for your interest in our museum! If you have any more questions, feel free to ask. We're here to help!");
+
             }
         },
         [currentStep, addMessage, userInfo, indianLanguages]

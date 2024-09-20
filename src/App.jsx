@@ -1,4 +1,3 @@
-// App.jsx
 import React, { useState } from 'react';
 import ChatWidget from './components/ChatWidget';
 import LandingPage from './components/LandingPage';
@@ -17,16 +16,23 @@ const theme = createTheme({
 const App = () => {
   const [isChatOpen, setIsChatOpen] = useState(false);
 
+  const handleOpenChat = () => {
+    setIsChatOpen(true);
+  };
+
+  const handleCloseChat = () => {
+    setIsChatOpen(false);
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <LandingPage />
-
+      <LandingPage onOpenChat={handleOpenChat} />
       {!isChatOpen && (
         <Fab
           color="primary"
           aria-label="chat"
-          onClick={() => setIsChatOpen(true)}
+          onClick={handleOpenChat}
           sx={{
             position: 'fixed',
             bottom: 32,
@@ -38,7 +44,7 @@ const App = () => {
           <ChatIcon />
         </Fab>
       )}
-      {isChatOpen && <ChatWidget onClose={() => setIsChatOpen(false)} />}
+      {isChatOpen && <ChatWidget onClose={handleCloseChat} />}
     </ThemeProvider>
   );
 };

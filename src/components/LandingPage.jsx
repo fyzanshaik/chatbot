@@ -13,6 +13,7 @@ import {
 } from '@mui/material';
 import Navbar from './Navbar';
 import Footer from './Footer';
+import SmartToyIcon from '@mui/icons-material/SmartToy';
 
 import hero from '../assets/hero.jpg';
 import about from '../assets/about.jpg';
@@ -50,7 +51,7 @@ const theme = createTheme({
     },
 });
 
-const LandingPage = () => {
+const LandingPage = ({ onOpenChat }) => {
     return (
         <ThemeProvider theme={theme}>
             <Box sx={{ backgroundColor: 'background.default' }}>
@@ -84,6 +85,16 @@ const LandingPage = () => {
                             <Box sx={{ display: 'flex', justifyContent: 'center' }}>
                                 <Button variant="contained" color="primary" size="large" sx={{ borderRadius: 30, px: 4, py: 1.5 }}>
                                     Plan Your Visit
+                                </Button>
+                                <Button
+                                    variant="contained"
+                                    color="secondary"
+                                    size="large"
+                                    startIcon={<SmartToyIcon />}
+                                    onClick={onOpenChat}
+                                    sx={{ borderRadius: 30, px: 2, py: 1.5 }}
+                                >
+                                    Book tickets with our new AI chatbot
                                 </Button>
                             </Box>
                         </Container>
